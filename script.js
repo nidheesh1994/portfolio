@@ -115,6 +115,7 @@ window.addEventListener("resize", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  window.scrollTo(0, 0);
   const beginBtn = document.getElementById("begin-button");
   const nextSection = document.getElementById("next-section");
 
