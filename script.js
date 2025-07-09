@@ -77,7 +77,6 @@ function startThreeScene() {
   function animate() {
     requestAnimationFrame(animate);
 
-    // Camera parallax movement
     const targetRotX = mouseY * 0.05;
     const targetRotY = mouseX * 0.05;
 
@@ -85,7 +84,6 @@ function startThreeScene() {
     camera.rotation.y += (targetRotY - camera.rotation.y) * 0.05;
     camera.rotation.z += (mouseX * 0.01 - camera.rotation.z) * 0.05;
 
-    // Camera position shift for depth
     camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
     camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
 
@@ -100,7 +98,10 @@ function startThreeScene() {
 
   setTimeout(() => {
     document.getElementById("loading-container").style.display = "none";
-    document.getElementById("main-section").style.transform = "translateY(0)";
+
+    const mainSection = document.getElementById("main-section");
+    mainSection.style.transform = "translateY(0)";
+
     document.body.style.overflow = "auto";
   }, 2000);
 }
@@ -115,16 +116,13 @@ window.addEventListener("resize", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   const beginBtn = document.getElementById("begin-button");
-  const mainSection = document.getElementById("main-section");
   const nextSection = document.getElementById("next-section");
 
   beginBtn.addEventListener("click", () => {
     beginBtn.disabled = true;
     beginBtn.classList.add("clicked");
 
-    // Animate sections
-    mainSection.style.transform = "translateY(-100vh)";
-    nextSection.style.transform = "translateY(0)";
-    nextSection.style.opacity = 1;
+    // Smooth scroll to next section
+    nextSection.scrollIntoView({ behavior: "smooth" });
   });
 });

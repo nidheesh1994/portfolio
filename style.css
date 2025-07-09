@@ -1,13 +1,16 @@
-body, html {
+html,
+body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    /* will be set to auto after loading */
     background-color: black;
     color: white;
     font-family: 'Courier New', monospace;
-  }
-  
-  #loading-container {
+    scroll-behavior: smooth;
+}
+
+#loading-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -18,38 +21,49 @@ body, html {
     justify-content: center;
     align-items: center;
     z-index: 10;
-  }
-  
-  #loading-text {
+}
+
+#loading-text {
     font-size: 2em;
     letter-spacing: 0.1em;
-  }
-  
-  #bg-canvas {
+}
+
+#bg-canvas {
     display: block;
     position: fixed;
     top: 0;
     left: 0;
-  }
-  
-  #main-section {
+    z-index: 0;
+}
+
+#main-section,
+#next-section {
     height: 100vh;
-    padding: 4rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transform: translateY(1000vh);
-    transition: transform 1.2s ease;
-    position: relative;
-    z-index: 1;
     gap: 2rem;
-  }
-  
-  #begin-button {
+    padding: 2rem;
+    z-index: 1;
+    position: relative;
+}
+
+#main-section {
+    background: transparent;
+    transform: translateY(100vh);
+    /* Start below the screen */
+    transition: transform 1.2s ease;
+}
+
+#next-section {
+    background: black;
+}
+
+#begin-button {
     border: 2px solid white;
     border-radius: 50%;
-    padding: 1.5rem 1.5rem;
+    padding: 1.5rem;
     background: transparent;
     color: white;
     font-size: 1.6rem;
@@ -58,35 +72,34 @@ body, html {
     transition: transform 0.2s ease;
     width: 200px;
     height: 200px;
-  }
-  
-  #begin-button:active {
+}
+
+#begin-button:active {
     animation: vibrate 0.3s linear;
-  }
-  
-  @keyframes vibrate {
-    0% { transform: translateX(0px); }
-    20% { transform: translateX(-3px); }
-    40% { transform: translateX(3px); }
-    60% { transform: translateX(-3px); }
-    80% { transform: translateX(3px); }
-    100% { transform: translateX(0px); }
-  }
-  
-  #next-section {
-    height: 100vh;
-    background: black;
-    color: white;
-    padding: 4rem;
-    transform: translateY(100vh);
-    opacity: 0;
-    transition: transform 1.2s ease, opacity 1.2s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1;
-    position: relative;
-  }
-  
-  
+}
+
+@keyframes vibrate {
+    0% {
+        transform: translateX(0px);
+    }
+
+    20% {
+        transform: translateX(-3px);
+    }
+
+    40% {
+        transform: translateX(3px);
+    }
+
+    60% {
+        transform: translateX(-3px);
+    }
+
+    80% {
+        transform: translateX(3px);
+    }
+
+    100% {
+        transform: translateX(0px);
+    }
+}
