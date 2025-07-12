@@ -126,6 +126,7 @@ body {
 }
 
 #chat-window .me {
+    text-align: right;
     color: #7dd3fc;
 }
 
