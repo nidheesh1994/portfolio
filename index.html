@@ -1,29 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Futuristic Website</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div id="loading-container">
-    <div id="loading-text">Loading</div>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Futuristic Website</title>
+    <link rel="stylesheet" href="style.css" />
 
-  <canvas id="bg-canvas"></canvas>
+    <!-- ─── Gradio JS client + chat logic ─────────────────────────── -->
 
-  <section id="main-section">
-    <h1>Welcome to the Future</h1>
-    <button id="begin-button">Let’s Begin</button>
-  </section>
+    <script type="module">
+      import { client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-  <section id="next-section">
-    <h2>This is the Next Section</h2>
-    <p>Scroll-based content or features can go here.</p>
-  </section>
+      let chatbot;
 
-  <script src="https://cdn.jsdelivr.net/npm/three-js@79.0.0/three.min.js"></script>
-  <script src="script.js"></script>
-</body>
+      async function initChatbot() {
+        chatbot = await client("nidheesh1994/ai-assistant", {
+          events: ["data", "status"],
+        });
+        console.log("🤖 Chatbot loaded");
+      }
+
+      window.addEventListener("DOMContentLoaded", initChatbot);
+
+      window.sendMessageToBot = async function (userMessage) {
+        const chatWin = document.getElementById("chat-window");
+        const chatStat = document.getElementById("chat-status");
+
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "msg me";
+        msgDiv.textContent = userMessage;
+        chatWin.appendChild(msgDiv);
+        chatWin.scrollTop = chatWin.scrollHeight;
+
+        const systemPrompt = `You are Prometheous, the personal AI assistant of Nidheesh Jagadeesan. 
+You only speak about him and answer in detail when users ask about Nidheesh's background, skills or projects.`;
+
+        chatStat.textContent = "Prometheous is thinking…";
+
+        const submission = chatbot.submit("/chat", [
+          userMessage,
+          [], // empty chat history or populate as needed
+          systemPrompt,
+        ]);
+
+        for await (const msg of submission) {
+          if (msg.type === "data") {
+            const reply = msg.data[0];
+
+            const botDiv = document.createElement("div");
+            botDiv.className = "msg bot";
+            botDiv.textContent = reply;
+            chatWin.appendChild(botDiv);
+            chatWin.scrollTop = chatWin.scrollHeight;
+
+            chatStat.textContent = "";
+          }
+
+          if (msg.type === "status") {
+            console.log("Status:", msg);
+          }
+        }
+      };
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById("chat-send");
+        const input = document.getElementById("chat-input");
+
+        btn.addEventListener("click", () => {
+          const val = input.value.trim();
+          if (val) {
+            window.sendMessageToBot(val);
+            input.value = "";
+          }
+        });
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") btn.click();
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <!-- Loading overlay & 3-D canvas remain unchanged -->
+    <div id="loading-container"><div id="loading-text">Loading</div></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <section id="main-section">
+      <h1>Welcome to the Future</h1>
+      <button id="begin-button">Let’s Begin</button>
+    </section>
+
+    <!-- Chat section -->
+    <section id="next-section">
+      <h2>Prometheous – Ask about Nidheesh</h2>
+      <div id="chat-window"></div>
+      <div id="chat-controls">
+        <input id="chat-input" placeholder="Ask me anything about Nidheesh…" />
+        <button id="chat-send">Send</button>
+      </div>
+      <p id="chat-status" style="opacity: 0.7; font-size: 0.9rem"></p>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/three-js@79.0.0/three.min.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
