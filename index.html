@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="style.css" />
 
     <!-- ─── Gradio JS client + chat logic ─────────────────────────── -->
-
     <script type="module">
       import { client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
       let chatbot;
+      let chatHistory = []; // 💡 store the conversation history globally
 
       async function initChatbot() {
         chatbot = await client("nidheesh1994/ai-assistant", {
@@ -26,6 +26,7 @@
         const chatWin = document.getElementById("chat-window");
         const chatStat = document.getElementById("chat-status");
 
+        // Show user message
         const msgDiv = document.createElement("div");
         msgDiv.className = "msg me";
         msgDiv.textContent = userMessage;
@@ -37,9 +38,10 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
 
         chatStat.textContent = "Prometheous is thinking…";
 
+        // 🧠 Send updated chat history
         const submission = chatbot.submit("/chat", [
           userMessage,
-          [], // empty chat history or populate as needed
+          chatHistory, // ← Pass the history
           systemPrompt,
         ]);
 
@@ -47,6 +49,7 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
           if (msg.type === "data") {
             const reply = msg.data[0];
 
+            // Show bot reply
             const botDiv = document.createElement("div");
             botDiv.className = "msg bot";
             botDiv.textContent = reply;
@@ -54,6 +57,9 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
             chatWin.scrollTop = chatWin.scrollHeight;
 
             chatStat.textContent = "";
+
+            // 📌 Save the exchange
+            chatHistory.push([userMessage, reply]);
           }
 
           if (msg.type === "status") {
