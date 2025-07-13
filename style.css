@@ -45,6 +45,7 @@ body {
     align-items: center;
     gap: 2rem;
     padding: 2rem;
+    padding-top: 1em;
     z-index: 1;
     position: relative;
 }
