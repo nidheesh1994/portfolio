@@ -49,6 +49,12 @@ body {
     position: relative;
 }
 
+.chat-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #main-section {
     background: transparent;
     transform: translateY(100vh);
