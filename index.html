@@ -8,8 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-
-
     <!-- ─── Gradio JS client + chat logic ─────────────────────────── -->
     <script type="module">
       import { client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
@@ -18,7 +16,7 @@
       let chatHistory = []; // 💡 store the conversation history globally
 
       async function initChatbot() {
-        chatbot = await client("nidheesh1994/ai-assistant-new", {
+        chatbot = await client("tencent/Hunyuan-Large", {
           events: ["data", "status"],
         });
         console.log("🤖 Chatbot loaded");
@@ -49,26 +47,28 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
           systemPrompt,
         ]);
 
+        let fullReply = "";
+
         for await (const msg of submission) {
           if (msg.type === "data") {
-            const reply = msg.data[0];
-
-            // Show bot reply
-            const botDiv = document.createElement("div");
-            botDiv.className = "msg bot";
-            botDiv.innerHTML = marked.parse(DOMPurify.sanitize(reply));
-            chatWin.appendChild(botDiv);
-            chatWin.scrollTop = chatWin.scrollHeight;
-
-            chatStat.textContent = "";
-
-            // 📌 Save the exchange
-            chatHistory.push([userMessage, reply]);
+            fullReply = msg.data[0]; // Overwrite instead of appending
           }
 
           if (msg.type === "status") {
             console.log("Status:", msg);
           }
+        }
+
+        // 💬 Render only final response
+        if (fullReply) {
+          const botDiv = document.createElement("div");
+          botDiv.className = "msg bot";
+          botDiv.innerHTML = marked.parse(DOMPurify.sanitize(fullReply));
+          chatWin.appendChild(botDiv);
+          chatWin.scrollTop = chatWin.scrollHeight;
+
+          chatStat.textContent = "";
+          chatHistory.push([userMessage, fullReply]);
         }
       };
 
@@ -104,9 +104,9 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
     <!-- Chat section -->
     <section id="next-section">
       <div class="chat-header">
-      <h2>I am Prometheous – An AI Assistant of Nidheesh</h2>
-      <h4>How can I help you</h4>
-    </div>
+        <h2>I am Prometheous – An AI Assistant of Nidheesh</h2>
+        <h4>How can I help you</h4>
+      </div>
       <div id="chat-window"></div>
       <div id="chat-controls">
         <input id="chat-input" placeholder="Ask me anything about Nidheesh…" />
