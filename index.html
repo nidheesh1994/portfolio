@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Futuristic Website</title>
     <link rel="stylesheet" href="style.css" />
+
+    <!-- Markdown + sanitiser -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -12,54 +14,147 @@
     <script type="module">
       import { client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-      let chatbot;
-      let chatHistory = []; // 💡 store the conversation history globally
+      /* ---------- Global state ---------- */
+      let chatbot; // gradio client instance
+      let chatHistory = []; // [{role:"user",content:"…"},{role:"assistant",content:"…"},…]
 
+      /* ---------- Prime prompt ---------- */
+      const PRIME_PROMPT = `Hi, from now on, I want you to act as my personal AI assistant named Prometheous, developed by Nidheesh Jagadeesan.
+
+You should always speak on behalf of me, not as a separate entity. You are confident, friendly, and knowledgeable. Your role is to assist others in learning more about Nidheesh Jagadeesan, his background, skills, and professional expertise.
+
+Whenever someone asks a question, you respond like:
+“As Nidheesh’s assistant, I can tell you that…” or “Nidheesh has worked on…”
+
+Here is Nidheesh Jagadeesan's professional profile:
+- Name: Nidheesh Jagadeesan  
+- Email: nidheesh1994@gmail.com | Mob: +44 7493082443, +91 7012264686
+- Sex: Male | Date of Birth: 14-01-1994 | Nationality: Indian
+- LinkedIn: https://www.linkedin.com/in/nidheesh-j/
+- Role: Senior Full Stack Developer | AI Researcher  
+- Personal Summary
+Results-driven Senior Full Stack Developer with over 8 years of professional experience in designing and delivering
+robust web applications, scalable backend systems, and modern frontend interfaces. Highly proficient in PHP (Laravel,
+Symfony), JavaScript (Vue.js, React.js, Node.js), and Python, with a strong track record of developing custom solutions
+for e-commerce, SaaS platforms, and enterprise software. Specialized in Shopware 6 plugin/theme development, API
+integrations, and performance optimization.
+Recently completed an MSc in Artificial Intelligence and Robotics from the University of Hertfordshire, enhancing my
+technical scope with AI-driven development, system automation, and high-performance computing. Proven ability to lead
+cross-functional teams, manage full project life cycles, and implement DevOps practices. Passionate about
+- Experience: 8+ years in full-stack web development  
+💼 Professional Experience
+- Senior Full Stack Developer – BEO SOFTWARE (Jul 2022 – Dec 2023)
+  - Led development across Vue.js, React.js, Symfony, Laravel
+  - Developed Shopware 6 plugins, themes, and REST APIs
+  - Integrated ElasticSearch, Redis, OAuth2, Dockerized environments
+  - CI/CD, DevOps practices, and Agile team collaboration
+- Senior Software Engineer – Phases Innovations (Jul 2018 – Jun 2022)
+  - Implemented Node.js, Laravel, Vue.js, Django REST, GCP workflows
+  - Integrated Podio, Google Sheets, email parsing systems
+  - Led 5+ member teams, designed DB schema, used Docker & Git
+  - Real-time chat apps, cloud storage event handling on Google Bucket
+- Software Developer – Freelancer (Jan 2017 – Feb 2018)
+  - End-to-end project development using Core PHP and Laravel
+  - Backend, frontend, server, and DB management
+- IT Consultant – Cinch Education (Oct 2015 – Aug 2016)
+  - Head of IT – managed website dev, analytics, and SEO
+🎓 Education
+- MSc Artificial Intelligence & Robotics  
+  University of Hertfordshire, UK (Jan 2024 – May 2025)
+  - Unity, CoppeliaSim, NetLogo simulations
+  - RAG on HPC cluster
+  - Final research: GA-generated training data for RL in self-driving simulation
+- B.Tech Computer Science & Engineering  
+  SBCE, Pattoor, India (2011–2015) – CGPA: 7.0
+📜 Certifications
+- Microsoft Certified: Azure AI Fundamentals (May 2024)  
+  https://www.credly.com/badges/3aca95bd-2273-40e3-aeac-62d41576ecd8
+🛠️ Technical Skills
+- Languages: PHP, Python, JavaScript
+- Backend: Laravel, Symfony, Django, Node.js
+- Frontend: Vue.js, React.js, Nuxt.js, D3.js, Redux, SCSS, Bootstrap
+- eCommerce: Shopware 6 (plugins, themes, REST)
+- AI/ML: Genetic Algorithms, Reinforcement Learning, Neural Networks, ONNX, NLP, Pandas, Data Science
+- Cloud & Tools: Docker, GCP, AWS, Git, Sentry, Datadog, OAuth2, Redis, ElasticSearch
+- DevOps & Infra: Linux shell, Plesk, cPanel, enerSpace, CI/CD, PM2, Heroku
+- Simulation & Research Tools: Unity, NetLogo, CoppeliaSim, R, Matlab
+- Other: Figma, Adobe XD, PhpStorm, VS Code, Agile Scrum, Podio, Trello, ClickUp
+📂 Open-Source Contribution
+- Laravel CLI generator for Repository Pattern  
+  GitHub: https://github.com/nidheesh1994/createRepository
+- Tech Stack: PHP (Laravel, Symfony), JavaScript (Vue.js, React.js, Node.js), Python, Shopware 6, MySQL, Docker  
+- AI/ML: Expertise in Genetic Algorithms, Reinforcement Learning, Neural Networks, ONNX, Hugging Face Transformers  
+- Education: MSc in Artificial Intelligence & Robotics from University of Hertfordshire (with distinction)  
+- Projects:  
+    • Autonomous car navigation using GA + RL in Unity  
+    • AI stock trader using real-time Upstox data + LLMs  
+    • AI-powered Shopware plugin with product learning  
+- Other Skills: High-Performance Computing (HPC), GCP, Unity, Robotics, DevOps, custom AI apps
+Introduce yourself briefly in the first message like:
+"Hi, I am Prometheous. Assistant of Nidheesh J. What would you like to know about him?"`;
+
+      /* ---------- Init chatbot & prime it ---------- */
       async function initChatbot() {
         chatbot = await client("tencent/Hunyuan-Large", {
           events: ["data", "status"],
         });
         console.log("🤖 Chatbot loaded");
+
+        const primeSub = chatbot.submit("/chat", [
+          PRIME_PROMPT /* user message              */,
+          [] /* empty history             */,
+          "" /* no extra system prompt    */,
+        ]);
+
+        let primeReply = "";
+        for await (const m of primeSub) {
+          if (m.type === "data") primeReply = m.data[0];
+        }
+
+        // Save to history
+        chatHistory.push(
+          { role: "user", content: PRIME_PROMPT },
+          { role: "assistant", content: primeReply }
+        );
+
+        // Render the assistant greeting
+        const chatWin = document.getElementById("chat-window");
+        const botDiv = document.createElement("div");
+        botDiv.className = "msg bot";
+        botDiv.innerHTML = marked.parse(DOMPurify.sanitize(primeReply));
+        chatWin.appendChild(botDiv);
+        chatWin.scrollTop = chatWin.scrollHeight;
       }
 
       window.addEventListener("DOMContentLoaded", initChatbot);
 
+      /* ---------- Send a user message ---------- */
       window.sendMessageToBot = async function (userMessage) {
         const chatWin = document.getElementById("chat-window");
         const chatStat = document.getElementById("chat-status");
 
-        // Show user message
-        const msgDiv = document.createElement("div");
-        msgDiv.className = "msg me";
-        msgDiv.textContent = userMessage;
-        chatWin.appendChild(msgDiv);
+        // Render user bubble
+        const meDiv = document.createElement("div");
+        meDiv.className = "msg me";
+        meDiv.textContent = userMessage;
+        chatWin.appendChild(meDiv);
         chatWin.scrollTop = chatWin.scrollHeight;
-
-        const systemPrompt = `You are Prometheous, the personal AI assistant of Nidheesh Jagadeesan. 
-You only speak about him and answer in detail when users ask about Nidheesh's background, skills or projects.`;
 
         chatStat.textContent = "Prometheous is thinking…";
 
-        // 🧠 Send updated chat history
         const submission = chatbot.submit("/chat", [
           userMessage,
-          chatHistory, // ← Pass the history
-          systemPrompt,
+          chatHistory, // pass full history
+          "", // no system prompt — persona already set
         ]);
 
         let fullReply = "";
 
         for await (const msg of submission) {
-          if (msg.type === "data") {
-            fullReply = msg.data[0]; // Overwrite instead of appending
-          }
-
-          if (msg.type === "status") {
-            console.log("Status:", msg);
-          }
+          if (msg.type === "data") fullReply = msg.data[0];
         }
 
-        // 💬 Render only final response
+        // Render assistant reply
         if (fullReply) {
           const botDiv = document.createElement("div");
           botDiv.className = "msg bot";
@@ -68,10 +163,16 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
           chatWin.scrollTop = chatWin.scrollHeight;
 
           chatStat.textContent = "";
-          chatHistory.push([userMessage, fullReply]);
+
+          // Update history
+          chatHistory.push(
+            { role: "user", content: userMessage },
+            { role: "assistant", content: fullReply }
+          );
         }
       };
 
+      /* ---------- UI bindings ---------- */
       window.addEventListener("DOMContentLoaded", () => {
         const btn = document.getElementById("chat-send");
         const input = document.getElementById("chat-input");
@@ -92,7 +193,7 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
   </head>
 
   <body>
-    <!-- Loading overlay & 3-D canvas remain unchanged -->
+    <!-- Loading overlay & 3‑D canvas remain unchanged -->
     <div id="loading-container"><div id="loading-text">Loading</div></div>
     <canvas id="bg-canvas"></canvas>
 
@@ -105,9 +206,11 @@ You only speak about him and answer in detail when users ask about Nidheesh's ba
     <section id="next-section">
       <div class="chat-header">
         <h2>I am Prometheous – An AI Assistant of Nidheesh</h2>
-        <h4>How can I help you</h4>
+        <h4>How can I help you?</h4>
       </div>
+
       <div id="chat-window"></div>
+
       <div id="chat-controls">
         <input id="chat-input" placeholder="Ask me anything about Nidheesh…" />
         <button id="chat-send">Send</button>
