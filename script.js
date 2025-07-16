@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
   beginBtn.addEventListener("click", () => {
     beginBtn.disabled = true;
     beginBtn.classList.add("clicked");
-
+    startUfoScene()
     // Smooth scroll to next section
     nextSection.scrollIntoView({ behavior: "smooth" });
   });
@@ -215,7 +215,7 @@ document.addEventListener("keyup", (e) => {
   keyState[e.code] = false;
 });
 
-window.addEventListener("DOMContentLoaded", startUfoScene);
+// window.addEventListener("DOMContentLoaded", startUfoScene);
 
 window.addEventListener("resize", () => {
   const canvas = document.getElementById("ufo-canvas");
