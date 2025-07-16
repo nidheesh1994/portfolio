@@ -122,9 +122,13 @@ document.addEventListener("DOMContentLoaded", () => {
   beginBtn.addEventListener("click", () => {
     beginBtn.disabled = true;
     beginBtn.classList.add("clicked");
-    startUfoScene()
     // Smooth scroll to next section
     nextSection.scrollIntoView({ behavior: "smooth" });
+
+    setTimeout(() => {
+      startUfoScene(); // start scene setup
+      animateUfoEntry(); // run UFO entry animation
+    }, 2000);
   });
 });
 
@@ -190,9 +194,28 @@ function startUfoScene() {
   ufo = new THREE.Group();
   ufo.add(disc);
   ufo.add(dome);
+  ufo.position.set(10, 10, -10);
   ufoScene.add(ufo);
 
   animateUfo();
+}
+
+function animateUfoEntry() {
+  const start = { x: 10, y: 10, z: -10 };
+  const end = { x: 0, y: 1, z: 0 };
+  const duration = 1000; // in ms
+  const steps = 60;
+  let step = 0;
+
+  const interval = setInterval(() => {
+    const t = step / steps;
+    ufo.position.x = start.x + (end.x - start.x) * t;
+    ufo.position.y = start.y + (end.y - start.y) * t;
+    ufo.position.z = start.z + (end.z - start.z) * t;
+
+    step++;
+    if (step > steps) clearInterval(interval);
+  }, duration / steps);
 }
 
 function animateUfo() {
@@ -214,8 +237,6 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   keyState[e.code] = false;
 });
-
-// window.addEventListener("DOMContentLoaded", startUfoScene);
 
 window.addEventListener("resize", () => {
   const canvas = document.getElementById("ufo-canvas");
