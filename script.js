@@ -23,10 +23,15 @@ const scrambleInterval = setInterval(() => {
 
 let mouseX = 0,
   mouseY = 0;
+let ufoMouseX = 0,
+  ufoMouseY = 0;
 
 document.addEventListener("mousemove", (event) => {
   mouseX = (event.clientX / window.innerWidth) * 2 - 1;
   mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  ufoMouseX = mouseX
+  ufoMouseY = mouseY
 });
 
 function startThreeScene() {
@@ -150,7 +155,11 @@ function startUfoScene() {
   );
   ufoCamera.position.set(0, 1, 5);
 
-  ufoRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  ufoRenderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    alpha: true,
+  });
   ufoRenderer.setSize(canvas.clientWidth, canvas.clientHeight);
   ufoRenderer.setPixelRatio(window.devicePixelRatio);
 
@@ -187,7 +196,11 @@ function startUfoScene() {
   );
   const dome = new THREE.Mesh(
     new THREE.SphereGeometry(0.4, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-    new THREE.MeshStandardMaterial({ color: 0x55aaff, transparent: true, opacity: 0.8 })
+    new THREE.MeshStandardMaterial({
+      color: 0x55aaff,
+      transparent: true,
+      opacity: 0.8,
+    })
   );
   dome.position.y = 0.2;
 
@@ -225,6 +238,13 @@ function animateUfo() {
   if (keyState["ArrowDown"]) ufo.position.z += 0.1;
   if (keyState["ArrowLeft"]) ufo.position.x -= 0.1;
   if (keyState["ArrowRight"]) ufo.position.x += 0.1;
+
+  const targetX = ufoMouseX * 2;
+  const targetY = ufoMouseY * 1.5;
+
+  ufoCamera.position.x += (targetX - ufoCamera.position.x) * 0.05;
+  ufoCamera.position.y += (targetY + 1 - ufoCamera.position.y) * 0.05;
+  ufoCamera.lookAt(0, 1, 0); // Look at UFO center
 
   if (ufoRenderer && ufoScene && ufoCamera) {
     ufoRenderer.render(ufoScene, ufoCamera);
