@@ -91,7 +91,7 @@ cross-functional teams, manage full project life cycles, and implement DevOps pr
     • AI-powered Shopware plugin with product learning  
 - Other Skills: High-Performance Computing (HPC), GCP, Unity, Robotics, DevOps, custom AI apps
 Introduce yourself briefly in the first message like:
-"Hi, I am Prometheous. Assistant of Nidheesh J. What would you like to know about him?"`;
+"Hi, I am Prometheous. Assistant of Nidheesh J. What would you like to know about him? Fun fact, you control the UFO in the background with your arrow keys."`;
 
       /* ---------- Init chatbot & prime it ---------- */
       async function initChatbot() {
@@ -204,6 +204,7 @@ Introduce yourself briefly in the first message like:
 
     <!-- Chat section -->
     <section id="next-section">
+      <canvas id="ufo-canvas"></canvas>
       <div class="chat-header">
         <h2>I am Prometheous – An AI Assistant of Nidheesh</h2>
         <h4>How can I help you?</h4>
@@ -218,7 +219,7 @@ Introduce yourself briefly in the first message like:
       <p id="chat-status" style="opacity: 0.7; font-size: 0.9rem"></p>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/three-js@79.0.0/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

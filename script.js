@@ -127,3 +127,100 @@ document.addEventListener("DOMContentLoaded", () => {
     nextSection.scrollIntoView({ behavior: "smooth" });
   });
 });
+
+let ufoRenderer, ufoCamera, ufoScene, ufo;
+const keyState = {};
+
+function startUfoScene() {
+  const canvas = document.getElementById("ufo-canvas");
+  if (!canvas) return;
+
+  ufoScene = new THREE.Scene();
+  ufoScene.background = new THREE.Color(0x000000);
+
+  ufoCamera = new THREE.PerspectiveCamera(
+    60,
+    canvas.clientWidth / canvas.clientHeight,
+    0.1,
+    1000
+  );
+  ufoCamera.position.set(0, 1, 5);
+
+  ufoRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  ufoRenderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  ufoRenderer.setPixelRatio(window.devicePixelRatio);
+
+  const ambient = new THREE.AmbientLight(0x999999);
+  ufoScene.add(ambient);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.7);
+  dir.position.set(5, 10, 7);
+  ufoScene.add(dir);
+
+  const starCount = 1000;
+  const positions = new Float32Array(starCount * 3);
+  const colors = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount; i++) {
+    const r = 100;
+    positions[i * 3] = (Math.random() * 2 - 1) * r;
+    positions[i * 3 + 1] = (Math.random() * 2 - 1) * r;
+    positions[i * 3 + 2] = (Math.random() * 2 - 1) * r;
+
+    const c = new THREE.Color(Math.random(), Math.random(), Math.random());
+    colors[i * 3] = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+  }
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  starGeo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  const starMat = new THREE.PointsMaterial({ size: 1, vertexColors: true });
+  const stars = new THREE.Points(starGeo, starMat);
+  ufoScene.add(stars);
+
+  const disc = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.8, 1.2, 0.2, 32),
+    new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  const dome = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshStandardMaterial({ color: 0x55aaff, transparent: true, opacity: 0.8 })
+  );
+  dome.position.y = 0.2;
+
+  ufo = new THREE.Group();
+  ufo.add(disc);
+  ufo.add(dome);
+  ufoScene.add(ufo);
+
+  animateUfo();
+}
+
+function animateUfo() {
+  requestAnimationFrame(animateUfo);
+
+  if (keyState["ArrowUp"]) ufo.position.z -= 0.1;
+  if (keyState["ArrowDown"]) ufo.position.z += 0.1;
+  if (keyState["ArrowLeft"]) ufo.position.x -= 0.1;
+  if (keyState["ArrowRight"]) ufo.position.x += 0.1;
+
+  if (ufoRenderer && ufoScene && ufoCamera) {
+    ufoRenderer.render(ufoScene, ufoCamera);
+  }
+}
+
+document.addEventListener("keydown", (e) => {
+  keyState[e.code] = true;
+});
+document.addEventListener("keyup", (e) => {
+  keyState[e.code] = false;
+});
+
+window.addEventListener("DOMContentLoaded", startUfoScene);
+
+window.addEventListener("resize", () => {
+  const canvas = document.getElementById("ufo-canvas");
+  if (!canvas || !ufoRenderer || !ufoCamera) return;
+  ufoRenderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  ufoCamera.aspect = canvas.clientWidth / canvas.clientHeight;
+  ufoCamera.updateProjectionMatrix();
+});
