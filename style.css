@@ -57,7 +57,7 @@ body {
     text-align: center;
 
     h4 {
-        margin:0
+        margin: 0
     }
 
     h2 {
@@ -70,6 +70,10 @@ body {
     transform: translateY(100vh);
     /* Start below the screen */
     transition: transform 1.2s ease;
+}
+
+#next-section {
+    display: none;
 }
 
 #next-section {
@@ -86,7 +90,7 @@ body {
     z-index: 0;
 }
 
-#next-section > *:not(#ufo-canvas) {
+#next-section>*:not(#ufo-canvas) {
     position: relative;
     z-index: 1;
 }

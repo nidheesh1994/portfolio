@@ -128,12 +128,14 @@ document.addEventListener("DOMContentLoaded", () => {
     beginBtn.disabled = true;
     beginBtn.classList.add("clicked");
     // Smooth scroll to next section
-    nextSection.scrollIntoView({ behavior: "smooth" });
-
-    setTimeout(() => {
-      startUfoScene(); // start scene setup
+    const nextSection = document.getElementById("next-section");
+    nextSection.style.display = "flex";
+    nextSection.scrollIntoView({ behavior: "smooth" }); 
+    
+    setTimeout(() => { 
+      startUfoScene();// start scene setup
       animateUfoEntry(); // run UFO entry animation
-    }, 2000);
+    }, 500);
   });
 });
 
