@@ -205,18 +205,23 @@ Introduce yourself briefly in the first message like:
     <!-- Chat section -->
     <section id="next-section">
       <canvas id="ufo-canvas"></canvas>
-      <div class="chat-header">
-        <h2>I am Prometheous – An AI Assistant of Nidheesh</h2>
-        <h4>How can I help you?</h4>
-      </div>
+      <div class="chat" id="chat">
+        <div class="chat-header">
+          <h2>I am Prometheous – An AI Assistant of Nidheesh</h2>
+          <h4>How can I help you?</h4>
+        </div>
 
-      <div id="chat-window"></div>
+        <div id="chat-window"></div>
 
-      <div id="chat-controls">
-        <input id="chat-input" placeholder="Ask me anything about Nidheesh…" />
-        <button id="chat-send">Send</button>
+        <div id="chat-controls">
+          <input
+            id="chat-input"
+            placeholder="Ask me anything about Nidheesh…"
+          />
+          <button id="chat-send">Send</button>
+        </div>
+        <p id="chat-status" style="opacity: 0.7; font-size: 0.9rem"></p>
       </div>
-      <p id="chat-status" style="opacity: 0.7; font-size: 0.9rem"></p>
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>

@@ -229,7 +229,10 @@ function animateUfoEntry() {
     ufo.position.z = start.z + (end.z - start.z) * t;
 
     step++;
-    if (step > steps) clearInterval(interval);
+    if (step > steps) {
+      clearInterval(interval);
+      document.getElementById("chat").classList.add("show");
+    }
   }, duration / steps);
 }
 
