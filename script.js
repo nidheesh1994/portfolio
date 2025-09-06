@@ -258,9 +258,11 @@ function animateUfo() {
 
 document.addEventListener("keydown", (e) => {
   keyState[e.code] = true;
+  // document.getElementById("chat").classList.remove("show");
 });
 document.addEventListener("keyup", (e) => {
   keyState[e.code] = false;
+  // document.getElementById("chat").classList.add("show");
 });
 
 window.addEventListener("resize", () => {
